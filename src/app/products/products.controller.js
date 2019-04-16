@@ -58,7 +58,7 @@ const create = (req, res, next) => {
         .catch(err => {
             res.locals.error =  {
                 type: errors.BAD_REQUEST,
-                msg: 'Invalid Body Formate'
+                msg: 'Invalid Body Format'
             };
             next()
         });
@@ -81,7 +81,7 @@ const get = (req, res, next) => {
             }else{
                 res.locals.error =  {
                     type: errors.NOT_FOUND,
-                    msg: 'The product is not found'
+                    msg: 'Product Not Found'
                 };
             }
             next();
@@ -114,7 +114,7 @@ const replace = (req, res, next) => {
                     }else{
                         res.locals.error =  {
                             type: errors.NOT_FOUND,
-                            msg: 'The product is not found'
+                            msg: 'Product Not Found'
                         };
                     }
                     next();
@@ -129,7 +129,7 @@ const replace = (req, res, next) => {
         .catch(err => {
             res.locals.error =  {
                 type: errors.BAD_REQUEST,
-                msg: 'Invalid Body Formate'
+                msg: 'Invalid Body Format'
             };
             next()
         });
@@ -155,7 +155,7 @@ const update = (req, res, next) => {
                     }else{
                         res.locals.error =  {
                             type: errors.NOT_FOUND,
-                            msg: 'the product is not found'
+                            msg: 'Product Not Found'
                         };
                     }
                     next();
@@ -170,7 +170,7 @@ const update = (req, res, next) => {
         .catch(err => {
             res.locals.error =  {
                 type: errors.BAD_REQUEST,
-                msg: 'Invalid Body Formate'
+                msg: 'Invalid Body Format'
             };
             next()
         });
@@ -193,7 +193,7 @@ const remove = (req, res, next) => {
             }else{
                 res.locals.error =  {
                     type: errors.NOT_FOUND,
-                    msg: 'The product is not found'
+                    msg: 'Product Not Found'
                 };
             }
             next();

@@ -1,4 +1,4 @@
-const { ObjectID, MongoClient } =require('mongodb');
+const { ObjectID, MongoClient } = require('mongodb');
 
 const isString = x => typeof x === 'string' || x instanceof String;
 

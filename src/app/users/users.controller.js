@@ -59,7 +59,7 @@ const create = (req, res, next) => {
         .catch(err => {
                 res.locals.error =  {
                     type: errors.BAD_REQUEST,
-                    msg: 'Invalid Body Formate'
+                    msg: 'Invalid Body Format'
                 };
             next()
         });

@@ -49,6 +49,8 @@ module.exports =  function app(port, secret, dbAdapter, publicDir) {
 
     // MiddleWares
     server.use(responseFormater);
-
-    server.listen(port || 5000);
+    
+    server.listen(port, () => {
+        console.log(`Server is Ready at Port ${port} ...`)
+    });
 }

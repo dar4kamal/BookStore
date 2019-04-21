@@ -5,7 +5,12 @@ module.exports = function hidePassword(req, res, next){
             res.locals.data.data = users.data.map(user => ({...user, password:'hidden'}));
         }
         else{
-            res.locals.data = {...users, password:'hidden'};
+            // res.locals.data = {...users, password:'hidden'};
+            res.locals.data = { 
+                _id : users._id,
+                username : users.username,
+                email : users.email
+            };
         }
     }
     next();

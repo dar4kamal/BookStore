@@ -62,7 +62,7 @@ Add a Single product into the database
     "code": 500,
     "timeStamp": "4/20/2019, 4:28:57 PM",
     "path": "/api/products",
-    "method": "GET",
+    "method": "POST",
     "message": "Internal Server Error"
 }
 ```
@@ -75,8 +75,8 @@ Add a Single product into the database
 {
     "code": 400,
     "timeStamp": "4/20/2019, 4:28:57 PM",
-    "path": "/api/auth",
-    "method": "GET",
+    "path": "/api/products",
+    "method": "POST",
     "message": "Invalid Body Format"
 }
 ```

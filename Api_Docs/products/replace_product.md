@@ -58,7 +58,7 @@ Replace a Single product with a specific id with another one
     "code": 500,
     "timeStamp": "4/20/2019, 4:28:57 PM",
     "path": "/api/products/:id",
-    "method": "PATCH",
+    "method": "PUT",
     "message": "Internal Server Error"
 }
 ```
@@ -72,7 +72,7 @@ Replace a Single product with a specific id with another one
     "code": 404,
     "timeStamp": "4/20/2019, 4:28:57 PM",
     "path": "/api/products/:id",
-    "method": "PATCH",
+    "method": "PUT",
     "message": "Product Not Found"
 }
 ```
@@ -86,7 +86,7 @@ Replace a Single product with a specific id with another one
     "code": 400,
     "timeStamp": "4/20/2019, 4:28:57 PM",
     "path": "/api/products/:id",
-    "method": "PATCH",
+    "method": "PUT",
     "message": "Invalid Body Format"
 }
 ```

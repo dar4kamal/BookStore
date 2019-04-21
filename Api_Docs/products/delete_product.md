@@ -24,7 +24,7 @@ Delete a Single product with a specific id
     "code": 500,
     "timeStamp": "4/20/2019, 4:28:57 PM",
     "path": "/api/products/:id",
-    "method": "PATCH",
+    "method": "DELETE",
     "message": "Internal Server Error"
 }
 ```
@@ -38,7 +38,7 @@ Delete a Single product with a specific id
     "code": 404,
     "timeStamp": "4/20/2019, 4:28:57 PM",
     "path": "/api/products/:id",
-    "method": "PATCH",
+    "method": "DELETE",
     "message": "Product Not Found"
 }
 ```

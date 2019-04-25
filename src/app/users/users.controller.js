@@ -65,7 +65,49 @@ const create = (req, res, next) => {
         });
 }
 
+const update = function (req, res, next) {
+    // Skip if error
+    if(res.locals.error) 
+        return next();
+
+    const dbAdapter = res.locals.dbAdapter;
+    const data = req.body;
+    const id = req.params.id;
+    const query = req.query;    
+
+    Joi.validate(data, schemas.update)
+        .then(()=>{
+            service.update(dbAdapter, id, data, query)
+                .then(result =>{
+                    if(result){
+                        res.locals.status = 200;
+                        res.locals.data = result;
+                    }else{
+                        res.locals.error =  {
+                            type: errors.NOT_FOUND,
+                            msg: 'User Not Found'
+                        };
+                    }
+                    next();
+                }).catch(err => {
+                    res.locals.error =  {
+                        type: errors.SERVER_ERROR,
+                        msg: 'Internal Server Error'
+                    };
+                    next()
+                });
+        })
+        .catch(err => {
+            res.locals.error =  {
+                type: errors.BAD_REQUEST,
+                msg: 'Invalid Body Format'
+            };
+            next()
+        });
+}
+
 module.exports =  {
+    update,
     create,
     getAll
 };

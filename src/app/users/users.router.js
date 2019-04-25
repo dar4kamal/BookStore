@@ -4,17 +4,17 @@ const { hidePassword, encryptPassword } = require('./middlewares');
 const { role } = require('../auth/middlewares');
 const resource = '/users';
 
-const router = express.Router();
 const route = express.Router();
 
 route.use(encryptPassword);
 
-route.route('')
-    .get(role('admin'), controller.getAll)
+route.route(resource)
+    .get(controller.getAll)
     .post(controller.create);
 
 route.use(hidePassword);
 
-router.use(resource, route);
+route.route(resource + "/:id")
+    .patch(controller.update);
 
-module.exports =  router;
+module.exports =  route;

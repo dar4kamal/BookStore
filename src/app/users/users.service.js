@@ -25,7 +25,17 @@ const getAll = async function getAllFn(dbAdapter, query = {}){
     }
 }
 
+const update = async function updateFn(dbAdapter, id, data, query){
+    try {
+        const result = await dbAdapter.update(document, id, data);
+        return result;
+    } catch(err) {
+        throw err;
+    }
+}
+
 module.exports= {
+    update,
     create,
     getAll
 };

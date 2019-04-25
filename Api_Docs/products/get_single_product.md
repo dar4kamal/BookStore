@@ -40,7 +40,7 @@ show a Single product with a specific id
 {
     "code": 500,
     "timeStamp": "4/20/2019, 4:28:57 PM",
-    "path": "/api/products",
+    "path": "/api/products/:id",
     "method": "GET",
     "message": "Internal Server Error"
 }

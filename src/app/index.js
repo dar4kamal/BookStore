@@ -7,7 +7,7 @@ const jwt = require('express-jwt');
 const products = require('./products');
 const users = require('./users');
 const auth = require('./auth');
-//const orders = require('./orders');
+const reviews = require('./reviews');
 
 const responseFormater = require('./util/response.formater');
 
@@ -44,7 +44,8 @@ module.exports =  function app(port, secret, dbAdapter, publicDir) {
     root.use(products);
     root.use(users);
     root.use(auth);
-    //root.use(orders);
+    root.use(reviews);    
+
     server.use('/api', root);
 
     // MiddleWares

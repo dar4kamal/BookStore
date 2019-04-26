@@ -6,7 +6,7 @@ const replaceSchema = Joi.object().keys({
     isbn: Joi.number().integer().required(),
     editions_count: Joi.number().min(1).required(),
     authors: Joi.string().required(),
-    original_publication: Joi.date().default(Date.now,"First Publish Date").required(),
+    original_publication: Joi.date().required(),
     language_code: Joi.string().min(3).required(),
     rating: Joi.number().max(5).required(),
     rating_count: Joi.number().required(),

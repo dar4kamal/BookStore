@@ -6,7 +6,7 @@ const updateSchema = Joi.object().keys({
     isbn: Joi.number().integer(),
     editions_count: Joi.number().min(1),
     authors: Joi.string(),
-    original_publication: Joi.date().default(Date.now,"First Publish Date"),
+    original_publication: Joi.date(),
     language_code: Joi.string().min(3),
     rating: Joi.number().max(5),
     rating_count: Joi.number(),

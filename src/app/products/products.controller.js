@@ -145,7 +145,7 @@ const update = (req, res, next) => {
     const id = req.params.id;
     const query = req.query;
 
-    Joi.validate(data, schemas.replace)
+    Joi.validate(data, schemas.update)
         .then(()=>{
             service.update(dbAdapter, id, data, query)
                 .then(result =>{
@@ -189,7 +189,7 @@ const remove = (req, res, next) => {
         .then(result =>{
             if(result){
                 res.locals.status = 200;
-                res.locals.data = result;
+                res.locals.data = {};
             }else{
                 res.locals.error =  {
                     type: errors.NOT_FOUND,

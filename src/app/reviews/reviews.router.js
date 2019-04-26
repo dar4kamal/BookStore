@@ -9,12 +9,12 @@ router.route(resource + "/products/:id")
 router.route(resource + "/users/:id")
     .get(controller.getAll)
 
+router.route(resource + '/:id')
+    .patch(controller.update)
+    // .delete(controller.remove);
+
 router.route(resource)
     .post(controller.create)
 
-//  router.route(resource + '/:id')
-//     .get(controller.get)
-//     .patch(controller.update)
-//     .delete(controller.remove);
 
 module.exports = router;

@@ -31,8 +31,18 @@ const create = async (dbAdapter, data, query) => {
     }
 }
 
+const update = async (dbAdapter, id, data, query) => {
+    try {
+        const result = await dbAdapter.update(document, id, data);
+        return result;
+    } catch(err) {
+        throw err;
+    }
+}
+
 
 module.exports = {
     getAll,
-    create
+    create,
+    update
 };

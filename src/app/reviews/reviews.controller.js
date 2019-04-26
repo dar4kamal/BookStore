@@ -8,9 +8,18 @@ const getAll = (req, res, next) => {
     if(res.locals.error) 
         return next();
     const dbAdapter = res.locals.dbAdapter;
-    const productId = req.param.productId;    
-    const query = { productId };
+    const id = req.params.id;
+    var query = req.query;
+    var srcUrl = "";
 
+    if (req.url.includes("products")) {
+        query = Object.assign({...query, productId: id })
+        srcUrl = "Product";
+    } else if (req.url.includes("users")) {
+        query = Object.assign({...query, userId: id })
+        srcUrl = "User";
+    }
+    
     service.getAll(dbAdapter,query)
         .then(result =>{
             if(result) {
@@ -18,10 +27,12 @@ const getAll = (req, res, next) => {
                 res.locals.data = result;
                 next();
             } else {
-                res.locals.error =  {
-                    type: errors.BAD_REQUEST,
-                    msg: 'Product Has No Reviews Yet'
-                };
+                if (srcUrl) {
+                    res.locals.error =  {
+                        type: errors.BAD_REQUEST,
+                        msg: `${srcUrl} Has No Reviews Yet`
+                    };
+                }                
                 next();
             }
             

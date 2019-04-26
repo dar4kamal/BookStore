@@ -73,11 +73,10 @@ module.exports = function mongoAdapter(dbUrl, dbName){
         }
     }
 
-    const getAll = async function getAllDocument(collection, limit = 0, start = 0,){
+    const getAll = async function getAllDocument(collection, query={}, limit = 0, start = 0){
         try {
             const result = await db.collection(collection)
-            .find({}, {limit, skip: start});
-            
+            .find(query, {limit, skip: start});            
             
             return result.toArray();
         } catch(err) {

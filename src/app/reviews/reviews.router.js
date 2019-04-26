@@ -3,10 +3,12 @@ const controller = require('./reviews.controller');
 const resource = '/reviews';
 const router = express.Router();
 
+router.route(resource)
+    .post(controller.create)
+
 router.route(resource + "/:productId")
     .get(controller.getAll)
-    // .post(controller.create)
-
+    
 // router.route(resource + '/:id')
 //     .get(controller.get)
 //     .patch(controller.update)

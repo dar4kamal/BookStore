@@ -18,6 +18,23 @@ const getAll = async (dbAdapter, query = {}) => {
     }
 };
 
+const create = async (dbAdapter, data, query) => {
+    try {
+        query = Object.assign({...query, ...data})
+        const result = await dbAdapter.get(document, query);
+        if(result) {
+            return;
+        } else {
+            const reviewResult = await dbAdapter.insert(document, data);
+            return reviewResult;
+        }        
+    } catch(err) {
+        throw err;
+    }
+}
+
+
 module.exports = {
-    getAll
+    getAll,
+    create
 };

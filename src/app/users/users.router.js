@@ -12,9 +12,9 @@ route.route(resource)
     .get(controller.getAll)
     .post(controller.create);
 
-route.use(hidePassword);
-
 route.route(resource + "/:id")
     .patch(controller.update);
+
+route.use(hidePassword);
 
 module.exports =  route;

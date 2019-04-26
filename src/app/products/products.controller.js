@@ -42,8 +42,8 @@ const create = (req, res, next) => {
                         res.locals.data = result;
                     }else{
                         res.locals.error =  {
-                            type: errors.SERVER_ERROR,
-                            msg: 'Internal Server Error'
+                            type: errors.BAD_REQUEST,
+                            msg: 'product already exists'
                         };
                     }
                     next();

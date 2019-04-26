@@ -2,8 +2,11 @@ const document = 'products';
 
 const create = async function createFn(dbAdapter, data, query){
     try {
-        const result = await dbAdapter.insert(document, data);
-        return result;
+        const result = await dbAdapter.get(document, { "title": data.title });
+        if(result) return;
+
+        const productResult = await dbAdapter.insert(document, data);
+        return productResult;
     } catch(err) {
         throw err;
     }

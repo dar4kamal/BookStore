@@ -102,7 +102,7 @@ const update = (req, res, next) => {
     const id = req.params.id;
     const query = req.query;
 
-    Joi.validate(data, schemas.create)
+    Joi.validate(data, schemas.update)
         .then(()=>{
             service.update(dbAdapter, id, data, query)
                 .then(result =>{
@@ -133,8 +133,39 @@ const update = (req, res, next) => {
         });
 }
 
+const remove = (req, res, next) => {
+    // Skip if error
+    if(res.locals.error) 
+        return next();
+        
+    const dbAdapter = res.locals.dbAdapter;
+    const id = req.params.id;
+    const query = req.query;
+
+    service.remove(dbAdapter, id, query)
+        .then(result =>{
+            if(result){
+                res.locals.status = 200;
+                res.locals.data = {};
+            }else{
+                res.locals.error =  {
+                    type: errors.NOT_FOUND,
+                    msg: 'Review Not Found'
+                };
+            }
+            next();
+        }).catch(err => {
+            res.locals.error =  {
+                type: errors.SERVER_ERROR,
+                msg: 'Internal Server Error'
+            };
+            next()
+        });
+}
+
 module.exports =  {
     getAll,
     create,
-    update
+    update,
+    remove
 };

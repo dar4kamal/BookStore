@@ -11,7 +11,7 @@ router.route(resource + "/users/:id")
 
 router.route(resource + '/:id')
     .patch(controller.update)
-    // .delete(controller.remove);
+    .delete(controller.remove);
 
 router.route(resource)
     .post(controller.create)

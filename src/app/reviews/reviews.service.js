@@ -40,9 +40,18 @@ const update = async (dbAdapter, id, data, query) => {
     }
 }
 
+const remove = async (dbAdapter, id, query) => {
+    try {
+        const result = await dbAdapter.remove(document, id);
+        return result;
+    } catch(err) {
+        throw err;
+    }
+}
 
 module.exports = {
     getAll,
     create,
-    update
+    update,
+    remove
 };

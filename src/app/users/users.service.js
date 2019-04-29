@@ -14,11 +14,9 @@ const create = async function createFn(dbAdapter, data, query){
 
 const getAll = async function getAllFn(dbAdapter, query = {}){
     try {
-        const result = await dbAdapter.getAll(document)//, parseInt(query.limit), parseInt(query.start) );
+        const result = await dbAdapter.getAll(document)
         return {
-            data: result,
-            // limit: query.limit,
-            // start: query.start
+            data: result
         };
     } catch(err) {
         throw err;

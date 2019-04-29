@@ -14,11 +14,11 @@ const create = async function createFn(dbAdapter, data, query){
 
 const getAll = async function getAllFn(dbAdapter, query = {}){
     try {
-        const result = await dbAdapter.getAll(document, parseInt(query.limit), parseInt(query.start) );
+        const result = await dbAdapter.getAll(document)//, parseInt(query.limit), parseInt(query.start) );
         return {
             data: result,
-            limit: query.limit,
-            start: query.start
+            // limit: query.limit,
+            // start: query.start
         };
     } catch(err) {
         throw err;
@@ -34,8 +34,18 @@ const update = async function updateFn(dbAdapter, id, data, query){
     }
 }
 
+const get = async function getFn(dbAdapter, id, query){
+    try {
+        const result = await dbAdapter.get(document, id);
+        return result;
+    } catch(err) {
+        throw err;
+    }
+}
+
 module.exports= {
     update,
     create,
-    getAll
+    getAll,
+    get
 };

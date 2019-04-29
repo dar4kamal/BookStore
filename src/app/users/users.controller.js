@@ -1,3 +1,4 @@
+const _ = require("lodash");
 const Joi = require('joi');
 const service = require('./users.service');
 const schemas = require('./schemas');
@@ -31,8 +32,15 @@ const create = (req, res, next) => {
         return next();
 
     const dbAdapter = res.locals.dbAdapter;
-    const data = req.body;
+    let data = req.body;
     const query = req.query;
+    const defaultCart = {
+        items: [],
+        total: 0
+    }
+    if(!_.has(data, 'cart')){
+        data = Object.assign({...data, cart: defaultCart})
+    }
 
     Joi.validate(data, schemas.create)
         .then(()=>{
@@ -57,6 +65,7 @@ const create = (req, res, next) => {
                 });
         })
         .catch(err => {
+                console.log(err.details)
                 res.locals.error =  {
                     type: errors.BAD_REQUEST,
                     msg: 'Invalid Body Format'
@@ -106,8 +115,39 @@ const update = function (req, res, next) {
         });
 }
 
+const get = (req, res, next) => {
+    // Skip if error
+    if(res.locals.error) 
+        return next();
+
+    const dbAdapter = res.locals.dbAdapter;
+    const id = req.params.id;
+    const query = req.query;
+
+    service.get(dbAdapter, id, query)
+        .then(result =>{
+            if(result){
+                res.locals.status = 200;
+                res.locals.data = result;
+            }else{
+                res.locals.error =  {
+                    type: errors.NOT_FOUND,
+                    msg: 'User Not Found'
+                };
+            }
+            next();
+        }).catch(err => {
+            res.locals.error =  {
+                type: errors.SERVER_ERROR,
+                msg: 'Internal Server Error'
+            };
+            next()
+        });
+}
+
 module.exports =  {
     update,
     create,
-    getAll
+    getAll,
+    get
 };

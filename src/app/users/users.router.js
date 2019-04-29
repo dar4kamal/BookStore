@@ -13,6 +13,7 @@ route.route(resource)
     .post(controller.create);
 
 route.route(resource + "/:id")
+    .get(controller.get)
     .patch(controller.update);
 
 route.use(hidePassword);

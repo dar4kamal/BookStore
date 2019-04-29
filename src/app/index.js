@@ -8,6 +8,8 @@ const products = require('./products');
 const users = require('./users');
 const auth = require('./auth');
 const reviews = require('./reviews');
+const cart = require('./cart');
+
 
 const responseFormater = require('./util/response.formater');
 
@@ -45,6 +47,7 @@ module.exports =  function app(port, secret, dbAdapter, publicDir) {
     root.use(users);
     root.use(auth);
     root.use(reviews);    
+    root.use(cart);    
 
     server.use('/api', root);
 

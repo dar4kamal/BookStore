@@ -1,6 +1,6 @@
+const _ = require("lodash");
 const Joi = require('joi');
-const service = require('./cart.service');
-const schemas = require('../users/schemas');
+const UserSchemas = require('../users/schemas');
 const errors = require('../util/errors');
 const productService = require('../products/products.service')
 const userService = require('../users/users.service')
@@ -41,22 +41,25 @@ const deleteAll = (req, res, next) => {
 
     const dbAdapter = res.locals.dbAdapter;    
     let data = req.body;
-    data.cart = {
-        items:[],
-        total:0}
+    const userId = req.params.id;
+    const defaultCart = {
+        items: [],
+        total: 0
+    }
+    data.cart = defaultCart;
     const query = req.query;    
 
-    Joi.validate(data, schemas.create)
+    Joi.validate(data, UserSchemas.update)
         .then(()=>{
-            service.update(dbAdapter, data, query)
+            userService.update(dbAdapter, userId, data, query)
                 .then(result =>{
                     if(result){
-                        res.locals.status = 201;
+                        res.locals.status = 200;
                         res.locals.data = result.cart;
                     }else{
                         res.locals.error =  {
                             type: errors.BAD_REQUEST,
-                            msg: 'all is already deleted'
+                            msg: 'User Not Found'
                         };
                     }
                     next();
@@ -68,18 +71,11 @@ const deleteAll = (req, res, next) => {
                     next()
                 });
         })
-        .catch(err => {            
-            if (err.details[0].message.includes("length")){
-                res.locals.error =  {
-                    type: errors.BAD_REQUEST,
-                    msg: `review${err.details[0].message.split("length")[1]}`
-                };    
-            } else {
-                res.locals.error =  {
-                    type: errors.BAD_REQUEST,
-                    msg: 'Invalid Body Format'
-                };
-            }            
+        .catch(err => {
+            res.locals.error =  {
+                type: errors.BAD_REQUEST,
+                msg: 'Invalid Body Format'
+            };
             next()
         });
 }
@@ -88,46 +84,81 @@ const addItem = function (req, res, next) {
     if(res.locals.error) 
         return next();
 
-    const dbAdapter = res.locals.dbAdapter;
-    let data = req.body;
-    const id = req.params.id;
-    const item_id =  req.params.item;
+    const dbAdapter = res.locals.dbAdapter;    
+    const data = req.body;
+    const userId = req.params.id;    
     const query = req.query;    
-    
-    const product= productService.get(dbAdapter,item_id);
-    let user = userService.get(dbAdapter,id);
-    user.cart.items.push({product,quantity:1})
-    user.cart.total += product.price;
+        
+    productService.get(dbAdapter,data.productId)
+        .then(product => {
 
-    Joi.validate(user, schemas.update)
-        .then(()=>{
-            service.update(dbAdapter, id, user, query)
-                .then(result =>{
-                    if(result){
-                        res.locals.status = 200;
-                        res.locals.data = result.cart;
-                    }else{
-                        res.locals.error =  {
-                            type: errors.NOT_FOUND,
-                            msg: 'you ca Not Found'
-                        };
-                    }
-                    next();
-                }).catch(err => {
+            const productId = product._id.toString();
+            product = Object.keys(product).filter(key=>{
+                return key !== "_id"
+            })
+            .reduce((obj, key) => {
+                obj[key] = product[key];
+                return obj;
+              }, {})
+            
+            userService.get(dbAdapter,userId)
+                .then(user =>{
+                    
+                    const unWanted = ["_id","password"];
+                    user = Object.keys(user).filter(key=> !unWanted.includes(key))
+                    .reduce((obj, key) => {
+                        obj[key] = user[key];
+                        return obj;
+                    }, {})                    
+                    
+                    user.cart.items.push({productId: productId, product, quantity:1})
+                    user.cart.total += product.price;
+
+                    Joi.validate(user, UserSchemas.update)
+                        .then(()=>{
+                            service.update(dbAdapter, userId, user, query)
+                                .then(result =>{
+                                    if(result){
+                                        res.locals.status = 200;
+                                        res.locals.data = result.cart;
+                                    }else{
+                                        res.locals.error =  {
+                                            type: errors.NOT_FOUND,
+                                            msg: 'User Not Found'
+                                        };
+                                    }
+                                    next();
+                                }).catch(err => {                                    
+                                    res.locals.error =  {
+                                        type: errors.SERVER_ERROR,
+                                        msg: 'Internal Server Error'
+                                    };
+                                    next()
+                                });
+                        })
+                        .catch(err => {                            
+                            res.locals.error =  {
+                                type: errors.BAD_REQUEST,
+                                msg: 'Invalid Body Format'
+                            };
+                            next()
+                        });
+                })
+                .catch(err=>{
                     res.locals.error =  {
-                        type: errors.SERVER_ERROR,
-                        msg: 'Internal Server Error'
+                        type: errors.NOT_FOUND,
+                        msg: 'User Not Found'
                     };
                     next()
                 });
-        })
-        .catch(err => {
+        }).catch(err=>{
+
             res.locals.error =  {
-                type: errors.BAD_REQUEST,
-                msg: 'Invalid Body Format'
+                type: errors.NOT_FOUND,
+                msg: 'Product Not Found'
             };
-            next()
-        });
+            next();
+        });    
 }
 
 const deleteItem = function (req, res, next) {
@@ -135,50 +166,79 @@ const deleteItem = function (req, res, next) {
     if(res.locals.error) 
         return next();
 
-    const dbAdapter = res.locals.dbAdapter;
-    let data = req.body;
-    const id = req.params.id;
-    const item_id =  req.params.item;
-    const query = req.query;    
-    
-    let user = userService.get(dbAdapter,id);
-    let tragetProduct = user.cart.items.filter(item=>{
-        return item.product._id === item_id;
-    })[0]
+    const dbAdapter = res.locals.dbAdapter;    
+    const data = req.body;
+    const userId = req.params.id;    
+    const query = req.query;
+    const productId = data.productId;
 
-    user.cart.items = user.cart.items.filter(item=>{
-        return item.product._id !== item_id;
-    })
-    user.cart.total -= tragetProduct.product.price * tragetProduct.quantity ;
+    userService.get(dbAdapter,userId)
+        .then(user =>{
+            
+            const unWanted = ["_id","password"];
+            user = Object.keys(user).filter(key=> !unWanted.includes(key))
+            .reduce((obj, key) => {
+                obj[key] = user[key];
+                return obj;
+            }, {})
+            // console.log("cart items ",user.cart.items)
+            let targetItem = user.cart.items.filter(item=>{
+                return item.productId === productId.toString();
+            })[0]
+            
+            if (targetItem === undefined) {
+                throw new Error("Product Not Found")
+            }
+        
+            user.cart.items = user.cart.items.filter(item=>{
+                return item.productId !== productId;
+            })
 
-    Joi.validate(user, schemas.update)
-        .then(()=>{
-            service.update(dbAdapter, id, user, query)
-                .then(result =>{
-                    if(result){
-                        res.locals.status = 200;
-                        res.locals.data = result.cart;
-                    }else{
-                        res.locals.error =  {
-                            type: errors.NOT_FOUND,
-                            msg: 'you ca Not Found'
-                        };
-                    }
-                    next();
-                }).catch(err => {
+            user.cart.total -= targetItem.product.price * targetItem.quantity ;                        
+
+            Joi.validate(user, UserSchemas.update)
+                .then(()=>{
+                    service.update(dbAdapter, userId, user, query)
+                        .then(result =>{
+                            if(result){
+                                res.locals.status = 200;
+                                res.locals.data = result.cart;
+                            }else{
+                                res.locals.error =  {
+                                    type: errors.NOT_FOUND,
+                                    msg: 'User Not Found'
+                                };
+                            }
+                            next();
+                        }).catch(err => {                                    
+                            res.locals.error =  {
+                                type: errors.SERVER_ERROR,
+                                msg: 'Internal Server Error'
+                            };
+                            next()
+                        });
+                })
+                .catch(err => {
                     res.locals.error =  {
-                        type: errors.SERVER_ERROR,
-                        msg: 'Internal Server Error'
+                        type: errors.BAD_REQUEST,
+                        msg: 'Invalid Body Format'
                     };
                     next()
                 });
         })
-        .catch(err => {
-            res.locals.error =  {
-                type: errors.BAD_REQUEST,
-                msg: 'Invalid Body Format'
-            };
-            next()
+        .catch(err=>{
+            if (err.message.includes("Product")) {
+                res.locals.error =  {
+                    type: errors.NOT_FOUND,
+                    msg: 'Product Not Found'
+                };
+            } else {
+                res.locals.error =  {
+                    type: errors.NOT_FOUND,
+                    msg: 'User Not Found'
+                };
+            }
+            next();
         });
 }
 

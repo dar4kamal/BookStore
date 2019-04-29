@@ -5,13 +5,15 @@ const router = express.Router();
 
 router.route(resource + "/:id")
     .get(controller.getAll)
-    .patch(controller.deleteAll)
     // .post(controller.pay)
 
-router.route(resource + "/:id/:item")
+router.route(resource + "/empty/:id")
+    .get(controller.deleteAll)
+
+router.route(resource + "/add/:id")
     .patch(controller.addItem)
 
-router.route(resource + "/del/:id/:item")
+router.route(resource + "/delete/:id")
     .patch(controller.deleteItem)
 
 module.exports = router;

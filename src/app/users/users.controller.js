@@ -34,6 +34,11 @@ const create = (req, res, next) => {
     const dbAdapter = res.locals.dbAdapter;
     let data = req.body;
     const query = req.query;
+
+    if(!_.has(data, "role")){
+        data = Object.assign({...data, role: "user"})
+    }
+    
     const defaultCart = {
         items: [],
         total: 0

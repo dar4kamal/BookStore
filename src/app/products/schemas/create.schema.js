@@ -4,16 +4,13 @@ const createSchema = Joi.object().keys({
     title: Joi.string().required(),
     original_title: Joi.string().required(),
     isbn: Joi.number().integer().required(),
-    editions_count: Joi.number().min(1).required(),
+    in_stock: Joi.number().integer().min(1).required(),
     authors: Joi.string().required(),
-    original_publication: Joi.date().required(),
-    language_code: Joi.string().min(3).required(),
-    rating: Joi.number().max(5).required(),
-    rating_count: Joi.number().required(),
-    image_url: Joi.string().uri({ scheme: ['http', 'https'] }).required(),
-    quantity: Joi.number().integer().min(0).required(),
-    price: Joi.number().min(0).required(),
-    discount: Joi.number().min(0).max(99).required(),
+    publication_year: Joi.date().required(),
+    lang: Joi.string().min(3).required(),
+    rating: Joi.number().required(),
+    image: Joi.string().uri({ scheme: ['http', 'https'] }).required(),
+    price: Joi.number().min(0).required()
 });
 
 module.exports = createSchema;

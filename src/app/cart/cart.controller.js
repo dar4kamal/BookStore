@@ -14,7 +14,7 @@ const getAll = (req, res, next) => {
     const id = req.params.id;
     const query = req.query;
 
-    service.get(dbAdapter, id, query)
+    userService.get(dbAdapter, id, query)
         .then(result =>{
             if(result){
                 res.locals.status = 200;
@@ -109,14 +109,47 @@ const addItem = function (req, res, next) {
                     .reduce((obj, key) => {
                         obj[key] = user[key];
                         return obj;
-                    }, {})                    
+                    }, {})
+
+                    const targetItemIdx = user.cart.items.findIndex(item => item.productId === productId);
                     
-                    user.cart.items.push({productId: productId, product, quantity:1})
-                    user.cart.total += product.price;
+                    if (targetItemIdx !== -1){
+                        
+                        let targetItem = user.cart.items[targetItemIdx];
+                        const oldQuantity = targetItem.quantity;
+                        if (_.has(data,"quantity")){
+                            
+                            user.cart.items[targetItemIdx] = Object.assign({...targetItem, quantity: data.quantity})
+                        } else {
+                            user.cart.items[targetItemIdx] = Object.assign({...targetItem, quantity: oldQuantity+1})
+                        }
+                        
+                        const newQuantity = user.cart.items[targetItemIdx].quantity;
+                        if (newQuantity > oldQuantity) {
+                            user.cart.total += targetItem.product.price * (newQuantity - oldQuantity);
+                        } else if (newQuantity < oldQuantity) {
+                            user.cart.total -= targetItem.product.price * (oldQuantity - newQuantity);
+                        }
+
+                    } else {
+                        
+                        let cartItem = {
+                            productId: productId, 
+                            product: product
+                        }
+                        if (_.has(data,"quantity")){
+                            console.log("new > newQ",data.quantity)
+                            cartItem = Object.assign({...cartItem, quantity: data.quantity})
+                        } else {
+                            cartItem = Object.assign({...cartItem, quantity: 1})
+                        }
+                        user.cart.items.push(cartItem)
+                        user.cart.total += cartItem.product.price * cartItem.quantity;
+                    }
 
                     Joi.validate(user, UserSchemas.update)
                         .then(()=>{
-                            service.update(dbAdapter, userId, user, query)
+                            userService.update(dbAdapter, userId, user, query)
                                 .then(result =>{
                                     if(result){
                                         res.locals.status = 200;
@@ -136,7 +169,7 @@ const addItem = function (req, res, next) {
                                     next()
                                 });
                         })
-                        .catch(err => {                            
+                        .catch(err => {
                             res.locals.error =  {
                                 type: errors.BAD_REQUEST,
                                 msg: 'Invalid Body Format'
@@ -147,12 +180,11 @@ const addItem = function (req, res, next) {
                 .catch(err=>{
                     res.locals.error =  {
                         type: errors.NOT_FOUND,
-                        msg: 'User Not Found'
+                        msg: 'User Not Found ...'
                     };
                     next()
                 });
         }).catch(err=>{
-
             res.locals.error =  {
                 type: errors.NOT_FOUND,
                 msg: 'Product Not Found'
@@ -198,7 +230,7 @@ const deleteItem = function (req, res, next) {
 
             Joi.validate(user, UserSchemas.update)
                 .then(()=>{
-                    service.update(dbAdapter, userId, user, query)
+                    userService.update(dbAdapter, userId, user, query)
                         .then(result =>{
                             if(result){
                                 res.locals.status = 200;

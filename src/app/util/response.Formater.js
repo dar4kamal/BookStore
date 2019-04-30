@@ -38,7 +38,7 @@ module.exports = function responseFormater(req, res, next)  {
             method: req.method,
             message:msg,
         };
-        res.status(status);
+        // res.status(status);
         res.json(errorResponse);
     }
 

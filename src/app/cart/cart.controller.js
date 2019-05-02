@@ -1,5 +1,6 @@
 const _ = require("lodash");
 const Joi = require('joi');
+const stripe = require("stripe")(process.env.STRIPE_KEY)
 const UserSchemas = require('../users/schemas');
 const errors = require('../util/errors');
 const productService = require('../products/products.service')
@@ -138,7 +139,6 @@ const addItem = function (req, res, next) {
                             product: product
                         }
                         if (_.has(data,"quantity")){
-                            console.log("new > newQ",data.quantity)
                             cartItem = Object.assign({...cartItem, quantity: data.quantity})
                         } else {
                             cartItem = Object.assign({...cartItem, quantity: 1})
@@ -213,7 +213,6 @@ const deleteItem = function (req, res, next) {
                 obj[key] = user[key];
                 return obj;
             }, {})
-            // console.log("cart items ",user.cart.items)
             let targetItem = user.cart.items.filter(item=>{
                 return item.productId === productId.toString();
             })[0]
@@ -274,9 +273,74 @@ const deleteItem = function (req, res, next) {
         });
 }
 
+const pay = (req, res, next) => {
+    // Skip if error
+    if(res.locals.error) 
+        return next();
+
+    const dbAdapter = res.locals.dbAdapter;
+    const userId = req.params.id;
+    const query = req.query;
+
+    const data = req.body;
+    userService.get(dbAdapter, userId, query)
+        .then(result =>{
+            if(result){
+                const totalCharges = result.cart.total;
+                let descList = result.cart.items.map(item=>{
+                    const itemPrice = item.quantity * item.product.price;
+                    return `${item.quantity} Copy of |${item.product.title}| by ${itemPrice} usd`
+                })
+                let description = descList.reduce((acc,msg)=>{
+                    return `${acc} and ${msg}`;
+                },"")
+                description = result.username + " is buying " + description.substring(5,description.length);
+                
+                const charge = {
+                    amount: totalCharges,
+                    currency: "usd",
+                    description: description,
+                    source: data.token.id
+                };
+                stripe.charges.create(charge)
+                    .then(status=>{
+                        const result = {
+                            "success": true,
+                            "message": status.outcome.seller_message
+                        }
+                        res.locals.status = 200;
+                        res.locals.data = result;
+                        next();
+                    })
+                    .catch(err=>{
+                        const result = {
+                            "success": false,
+                            "message": "Payment Failed"
+                        }
+                        res.locals.status = 200;
+                        res.locals.data = result;
+                        next();
+                    })
+            }else{
+                res.locals.error =  {
+                    type: errors.NOT_FOUND,
+                    msg: 'User Not Found'
+                };
+                next();
+            }
+        }).catch(err => {
+            res.locals.error =  {
+                type: errors.SERVER_ERROR,
+                msg: 'Internal Server Error'
+            };
+            next()
+        });
+}
+
 module.exports =  {
     getAll,
     deleteAll,
     addItem,
-    deleteItem
+    deleteItem,
+    pay
 };

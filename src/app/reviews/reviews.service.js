@@ -16,6 +16,14 @@ const getAll = async (dbAdapter, query) => {
     }
 };
 
+// const example = {
+//     "userId": "5cc7236dc711c3109c7283a5",
+//     "username": "mostafafafafafa",
+//     "_id": "5cc335ea0b7d6b14c49cbd57",
+//     "title": "Harry Potter and the Sorcerer's Stone (Harry Potter, #1)",
+//     "image": "https://images.gr-assets.com/books/1447303603m/276742.jpg",
+// };
+
 const create = async (dbAdapter, data, query) => {
     try {
         query = Object.assign({...query, ...data})

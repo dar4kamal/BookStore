@@ -28,14 +28,16 @@ const getAll = (req, res, next) => {
                 next();
             } else {
                 if (srcUrl) {
+                    const msg = srcUrl === "User" ? 
+                        `User has't add reviews yet` : 
+                        `Product has no reviews yet`;
                     res.locals.error =  {
                         type: errors.BAD_REQUEST,
-                        msg: `${srcUrl} Has No Reviews Yet`
+                        msg: msg
                     };
                 }                
                 next();
             }
-            
         }).catch(err => {
             res.locals.error =  {
                 type: errors.SERVER_ERROR,
@@ -52,7 +54,7 @@ const create = (req, res, next) => {
 
     const dbAdapter = res.locals.dbAdapter;    
     const data = req.body;
-    const query = req.query;    
+    const query = req.query;
 
     Joi.validate(data, schemas.create)
         .then(()=>{
@@ -125,10 +127,17 @@ const update = (req, res, next) => {
                 });
         })
         .catch(err => {
-            res.locals.error =  {
-                type: errors.BAD_REQUEST,
-                msg: 'Invalid Body Format'
-            };
+            if (err.details[0].message.includes("length")){
+                res.locals.error =  {
+                    type: errors.BAD_REQUEST,
+                    msg: `review${err.details[0].message.split("length")[1]}`
+                };    
+            } else {
+                res.locals.error =  {
+                    type: errors.BAD_REQUEST,
+                    msg: 'Invalid Body Format'
+                };
+            }            
             next()
         });
 }

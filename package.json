@@ -4,7 +4,7 @@
   "description": "Simple Express Restfull API for E-Commerce",
   "main": "./src/main.js",
   "scripts": {
-    "start": "nodemon .",
+    "start" : "node .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Mohamed Seada",

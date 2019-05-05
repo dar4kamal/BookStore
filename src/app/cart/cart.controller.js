@@ -286,6 +286,7 @@ const pay = (req, res, next) => {
     userService.get(dbAdapter, userId, query)
         .then(result =>{
             if(result){
+                // get Charges for user With description for products which he will pay for
                 const totalCharges = result.cart.total;
                 let descList = result.cart.items.map(item=>{
                     const itemPrice = item.quantity * item.product.price;
@@ -296,32 +297,71 @@ const pay = (req, res, next) => {
                 },"")
                 description = result.username + " is buying " + description.substring(5,description.length);
                 
+                const updateQuery = result.cart.items.map(item=>{
+                    const purchased = item.product.in_stock - item.quantity;
+                    const currentStock = purchased <= 0 ? 0 : purchased;
+                    return {
+                        id: item.productId,
+                        currentStock: currentStock
+                    }
+                });
+
                 const charge = {
                     amount: totalCharges,
                     currency: "usd",
                     description: description,
                     source: data.token.id
                 };
+
+                // to Empty User Cart After Payment is Completed 
+                var user = result;
+                const defaultCart = {
+                    items: [],
+                    total: 0
+                }
+                user.cart = defaultCart;
+
                 stripe.charges.create(charge)
                     .then(status=>{
-                        const result = {
+                        const statusMsg = {
                             "success": true,
                             "message": status.outcome.seller_message
                         }
-                        res.locals.status = 200;
-                        res.locals.data = result;
-                        next();
+                        // empty cart and update items In stock
+                        userService.update(dbAdapter, userId, user, query)
+                            .then(result =>{
+                                if(result.cart.length === 0){
+                                    console.log("Cart is Empty")
+                                }else{
+                                    // cart still have items 
+                                    console.log("Sorry Cart will be fixed Soon")
+                                }
+                            })
+                            .then(() => {
+                                productService.bulkWrite(dbAdapter,updateQuery)
+                                    .then(result=>{
+                                        if(result) {
+                                            console.log("Transaction Completed Successfully")
+                                        } else {
+                                            console.log("Internal Server Error")
+                                        }
+                                    });
+                                res.locals.status = 200;
+                                res.locals.data = statusMsg;
+                                next();
+                            })
                     })
                     .catch(err=>{
-                        const result = {
+                        const statusMsg = {
                             "success": false,
-                            "message": "Payment Failed"
+                            "message": `Payment Failed ${err.message} ${err.param}`
                         }
+                        // cart still have items 
                         res.locals.status = 200;
-                        res.locals.data = result;
+                        res.locals.data = statusMsg;
                         next();
                     })
-            }else{
+            } else {
                 res.locals.error =  {
                     type: errors.NOT_FOUND,
                     msg: 'User Not Found'

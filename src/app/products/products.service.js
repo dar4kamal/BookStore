@@ -1,3 +1,4 @@
+const  { ObjectID } = require("mongodb");
 const document = 'products';
 
 const create = async function createFn(dbAdapter, data, query){
@@ -61,11 +62,30 @@ const getAll = async function getAllFn(dbAdapter, query = {}){
     }
 }
 
+const bulkWrite = async (dbAdapter, updateQuery) =>{
+    try {
+        const bulkQuery = updateQuery.map(query=>{
+            return {
+                "updateOne" : {
+                    "filter" : { "_id" : new ObjectID(query.id) },
+                    "update" : { "$set" : { "in_stock" : query.currentStock } }
+                }
+            }
+        });
+
+        const result = await dbAdapter.bulkWrite(document, bulkQuery)
+        return result
+    } catch (err) {
+        throw err;
+    }
+}
+
 module.exports= {
     create,
     update,
     replace,
     remove,
     get,
-    getAll
+    getAll,
+    bulkWrite
 };

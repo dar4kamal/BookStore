@@ -84,6 +84,16 @@ module.exports = function mongoAdapter(dbUrl, dbName){
         }
     }
 
+    const bulkWrite = async (collection, bulkQuery={} ) => {
+        try {
+            const result = await db.collection(collection).bulkWrite(bulkQuery)
+            return result;
+        } catch (err) {
+            console.log(err)
+        }
+
+    }    
+
     return {
         connect,
         close,
@@ -92,6 +102,7 @@ module.exports = function mongoAdapter(dbUrl, dbName){
         update,
         remove,
         get,
-        getAll
+        getAll,
+        bulkWrite
     }
 }

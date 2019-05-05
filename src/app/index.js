@@ -11,7 +11,7 @@ const reviews = require('./reviews');
 const cart = require('./cart');
 
 
-const responseFormater = require('./util/response.formater');
+const responseFormater = require("./util/response.Formater");
 
 module.exports =  function app(port, secret, dbAdapter, publicDir) {
     const server = express();

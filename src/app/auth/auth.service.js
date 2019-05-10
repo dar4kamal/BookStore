@@ -17,14 +17,15 @@ const login = async function loginFn(dbAdapter, data, secret){
 
                 // SIGNING OPTIONS
                 const signOptions = {
-                    issuer:  'E-Commerce Inc.',
-                    audience: "http://e-commerce.inc",
+                    issuer:  'National Book Store Inc.',
+                    audience: "http://NationalBookStore.inc",
                     subject: "anonymous",
                     algorithm: "HS256",
                     expiresIn: "1h"
                 };
 
                 const payload = {
+                    userId: user._id,
                     username,
                     role:user.role
                 }
